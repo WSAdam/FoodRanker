@@ -67,8 +67,8 @@
     .scorer-pill-rating { font-weight: 800; color: #ff6b35; }
 
     /* Modal overlay */
-    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 50; display: flex; align-items: flex-end; justify-content: center; }
-    .sheet { background: white; border-radius: 24px 24px 0 0; padding: 1.5rem; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    .sheet { background: white; border-radius: 20px; padding: 1.5rem; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
     .sheet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
     .sheet-close { background: #f0ede8; width: 32px; height: 32px; border-radius: 50%; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; color: #666; }
     .sheet-close:hover { background: #e5e0d8; }
@@ -103,6 +103,7 @@
 </head>
 <body>
 <div id="root"></div>
+<div id="modal-root"></div>
 <script>
 // ── Helpers ─────────────────────────────────────────────────────────────────
 function el(tag, props, ...children) {
@@ -167,14 +168,16 @@ function closeModal() { S = { ...S, modal: null }; render(); }
 // ── Render ───────────────────────────────────────────────────────────────────
 function render() {
   const root = document.getElementById('root');
+  const modalRoot = document.getElementById('modal-root');
   root.innerHTML = '';
+  modalRoot.innerHTML = '';
 
   if (S.view === 'home') renderHome(root);
   else if (S.view === 'category') renderCategory(root, S.category);
   else if (S.view === 'entry') renderEntryDetail(root, S.entry);
 
-  if (S.modal === 'add-category') renderAddCategoryModal(root);
-  else if (S.modal === 'add-entry') renderAddEntryModal(root);
+  if (S.modal === 'add-category') renderAddCategoryModal(modalRoot);
+  else if (S.modal === 'add-entry') renderAddEntryModal(modalRoot);
 }
 
 // ── Home ─────────────────────────────────────────────────────────────────────
