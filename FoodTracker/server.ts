@@ -3,6 +3,8 @@ import { listCategory } from "./integration/category-list/category-list.ts";
 import { createEntry } from "./integration/entry-create/entry-create.ts";
 import { listEntry } from "./integration/entry-list/entry-list.ts";
 import { getEntry } from "./integration/entry-get/entry-get.ts";
+import { updateEntry } from "./integration/entry-update/entry-update.ts";
+import { deleteEntry } from "./integration/entry-delete/entry-delete.ts";
 import { CreateCategoryDto } from "./dto/create-category-dto.ts";
 import { CreateEntryDto } from "./dto/create-entry-dto.ts";
 import { CategoryIdDto } from "./dto/category-id-dto.ts";
@@ -63,12 +65,23 @@ Deno.serve(async (req: Request) => {
       return json(result);
     }
 
-    // GET /entries/:entryId
+    // /entries/:entryId
     const entryMatch = pathname.match(/^\/entries\/([^/]+)$/);
-    if (method === "GET" && entryMatch) {
+    if (entryMatch) {
       const entryId = entryMatch[1];
-      const result = await getEntry(new EntryIdDto({ entryId }));
-      return json(result);
+      if (method === "GET") {
+        const result = await getEntry(new EntryIdDto({ entryId }));
+        return json(result);
+      }
+      if (method === "PUT") {
+        const body = await req.json();
+        const result = await updateEntry(new EntryIdDto({ entryId }), new CreateEntryDto(body));
+        return json(result);
+      }
+      if (method === "DELETE") {
+        await deleteEntry(new EntryIdDto({ entryId }));
+        return new Response(null, { status: 204 });
+      }
     }
 
     return err("Not found", 404);

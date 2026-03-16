@@ -120,4 +120,60 @@ export class Entry {
     await validateDto(dto);
     return dto;
   }
+
+  async update(entryId: string, input: CreateEntryDto): Promise<EntryDto> {
+    const kv = await this.kv();
+    const rowResult = await kv.get<EntryRow>(["entries", entryId]);
+    if (rowResult.value === null) throw new Error("not-found");
+    const old = rowResult.value;
+
+    const oldSortKey = `${old.date}_${entryId}`;
+    const newSortKey = `${input.date}_${entryId}`;
+
+    const row: EntryRow = {
+      entryId,
+      categoryId: old.categoryId,
+      date: input.date,
+      restaurant: input.restaurant,
+      ordered: input.ordered,
+      impressions: input.impressions,
+      price: input.price,
+      notes: input.notes,
+    };
+    const scorerRows: ScorerRow[] = (input.scorers ?? []).map((s) => ({
+      person: s.person,
+      rating: s.rating,
+    }));
+
+    let op = kv.atomic()
+      .set(["entries", entryId], row)
+      .set(["entry_scorers", entryId], scorerRows);
+
+    if (oldSortKey !== newSortKey) {
+      op = op
+        .delete(["category_entries", old.categoryId, oldSortKey])
+        .set(["category_entries", old.categoryId, newSortKey], entryId);
+    }
+
+    await op.commit();
+
+    const scorers = scorerRows.map((s) => new ScorerDto({ person: s.person, rating: s.rating }));
+    const dto = new EntryDto({ ...row, scorers });
+    await validateDto(dto);
+    return dto;
+  }
+
+  async delete(entryId: string): Promise<void> {
+    const kv = await this.kv();
+    const rowResult = await kv.get<EntryRow>(["entries", entryId]);
+    if (rowResult.value === null) throw new Error("not-found");
+    const { categoryId, date } = rowResult.value;
+    const sortKey = `${date}_${entryId}`;
+
+    await kv.atomic()
+      .delete(["entries", entryId])
+      .delete(["entry_scorers", entryId])
+      .delete(["category_entries", categoryId, sortKey])
+      .commit();
+  }
 }
