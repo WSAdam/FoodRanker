@@ -25,6 +25,16 @@ Deno.serve(async (req: Request) => {
   const method = req.method;
 
   try {
+    // GET /
+    if (method === "GET" && pathname === "/") {
+      const html = await Deno.readTextFile(
+        new URL("./public/index.html", import.meta.url),
+      );
+      return new Response(html, {
+        headers: { "Content-Type": "text/html; charset=utf-8" },
+      });
+    }
+
     // POST /categories
     if (method === "POST" && pathname === "/categories") {
       const body = await req.json();
