@@ -1,0 +1,11 @@
+export type categoryId = string;
+export type entryId = string;
+export type name = string;
+export type date = string;
+export type restaurant = string;
+export type ordered = string;
+export type impressions = string;
+export type price = string;
+export type notes = string;
+export type person = string;
+export type rating = number;
