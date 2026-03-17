@@ -98,6 +98,11 @@
     .form-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
     .form-actions button { flex: 1; padding: 0.75rem; }
 
+    /* Import button */
+    .btn-import { background: none; border: 1.5px solid #ddd; border-radius: 10px; color: #888; font-size: 0.85rem; font-weight: 600; padding: 0.45rem 0.85rem; }
+    .btn-import:hover { border-color: #ff6b35; color: #ff6b35; }
+    .header-actions { display: flex; align-items: center; gap: 0.65rem; }
+
     /* Entry detail actions */
     .detail-actions { display: flex; gap: 0.75rem; margin-top: 1rem; margin-bottom: 0.75rem; }
     .btn-edit { background: #f0ede8; color: #444; border-radius: 12px; font-size: 0.95rem; font-weight: 600; padding: 0.65rem 1.25rem; flex: 1; }
@@ -241,7 +246,10 @@ function renderCategory(root, cat) {
 
     root.appendChild(el('div', { class: 'page-header' },
       el('h1', {}, cat.name),
-      el('button', { class: 'btn-fab', onclick: () => openModal('add-entry') }, '+'),
+      el('div', { class: 'header-actions' },
+        el('button', { class: 'btn-import', onclick: () => triggerImport(cat) }, '📥 CSV'),
+        el('button', { class: 'btn-fab', onclick: () => openModal('add-entry') }, '+'),
+      ),
     ));
 
     const entries = data.entrys || [];
@@ -583,6 +591,78 @@ function makeScorerRow(idx) {
     row.appendChild(el('button', { type: 'button', class: 'remove', onclick: () => row.remove() }, '×'));
   }
   return row;
+}
+
+// ── CSV Import ────────────────────────────────────────────────────────────────
+function parseCSV(text) {
+  const rows = [];
+  for (const line of text.split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    const fields = [];
+    let field = '', inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') {
+        if (inQuotes && line[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = !inQuotes;
+      } else if (c === ',' && !inQuotes) {
+        fields.push(field); field = '';
+      } else {
+        field += c;
+      }
+    }
+    fields.push(field);
+    rows.push(fields);
+  }
+  return rows;
+}
+
+function triggerImport(cat) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.csv,text/csv';
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return;
+    const rows = parseCSV(await file.text());
+    if (rows.length < 2) { alert('CSV is empty or has no data rows.'); return; }
+
+    const headers = rows[0].map(h => h.toLowerCase().trim());
+    const dataRows = rows.slice(1).filter(r => r.some(c => c.trim()));
+    if (!confirm(`Import ${dataRows.length} entr${dataRows.length === 1 ? 'y' : 'ies'} into "${cat.name}"?`)) return;
+
+    let success = 0, failed = 0;
+    for (const row of dataRows) {
+      const get = (name) => (row[headers.indexOf(name)] ?? '').trim();
+      // scorers column: "Name:Rating|Name2:Rating2"
+      const scorersRaw = get('scorers');
+      const scorers = scorersRaw
+        ? scorersRaw.split('|').flatMap(s => {
+            const colon = s.lastIndexOf(':');
+            if (colon < 1) return [];
+            const person = s.slice(0, colon).trim();
+            const rating = parseInt(s.slice(colon + 1), 10);
+            return person && !isNaN(rating) ? [{ person, rating }] : [];
+          })
+        : [];
+      try {
+        await api.createEntry({
+          categoryId: cat.categoryId,
+          date: get('date'),
+          restaurant: get('restaurant'),
+          ordered: get('ordered'),
+          impressions: get('impressions'),
+          price: get('price'),
+          notes: get('notes'),
+          scorers,
+        });
+        success++;
+      } catch (_) { failed++; }
+    }
+    alert(`✅ Imported ${success} entries${failed > 0 ? ` (${failed} failed)` : ''}.`);
+    go('category');
+  };
+  input.click();
 }
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
