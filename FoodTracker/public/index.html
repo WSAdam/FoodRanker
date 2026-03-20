@@ -43,6 +43,9 @@
 
     /* Rating */
     .rating-pill { background: #ff6b35; color: white; border-radius: 10px; padding: 0.25rem 0.65rem; font-weight: 800; font-size: 0.9rem; white-space: nowrap; flex-shrink: 0; }
+    .entry-card-right { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+    .scorer-tags { display: flex; flex-direction: column; align-items: flex-end; gap: 0.2rem; }
+    .scorer-tag { font-size: 0.75rem; color: #aaa; font-weight: 500; white-space: nowrap; }
     .rating-hero { font-size: 2.5rem; font-weight: 900; color: #ff6b35; }
 
     /* Empty state */
@@ -263,6 +266,7 @@ function renderCategory(root, cat) {
     } else {
       entries.forEach(entry => {
         const avg = avgRating(entry.scorers);
+        const topScorers = (entry.scorers || []).slice(0, 2);
         root.appendChild(el('div', { class: 'entry-card', onclick: () => go('entry', { entry }) },
           el('div', { class: 'entry-card-top' },
             el('div', {},
@@ -270,7 +274,14 @@ function renderCategory(root, cat) {
               el('div', { class: 'entry-card-date' }, fmtDate(entry.date)),
               el('div', { class: 'entry-card-ordered' }, entry.ordered),
             ),
-            avg !== null ? el('div', { class: 'rating-pill' }, avg + '/100') : null,
+            el('div', { class: 'entry-card-right' },
+              topScorers.length > 0
+                ? el('div', { class: 'scorer-tags' },
+                    ...topScorers.map(sc => el('div', { class: 'scorer-tag' }, sc.person)),
+                  )
+                : null,
+              avg !== null ? el('div', { class: 'rating-pill' }, avg + '/100') : null,
+            ),
           ),
         ));
       });
