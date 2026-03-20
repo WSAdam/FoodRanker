@@ -103,6 +103,12 @@
     .form-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
     .form-actions button { flex: 1; padding: 0.75rem; }
 
+    /* Sort bar */
+    .sort-bar { display: flex; gap: 0.4rem; margin-bottom: 1rem; }
+    .sort-btn { border: 1.5px solid #e0dcd6; border-radius: 8px; padding: 0.35rem 0.9rem; font-size: 0.85rem; font-weight: 600; color: #888; background: white; cursor: pointer; font-family: inherit; }
+    .sort-btn:hover { border-color: #ff6b35; color: #ff6b35; }
+    .sort-btn.active { background: #ff6b35; color: white; border-color: #ff6b35; }
+
     /* Import button */
     .btn-import { background: none; border: 1.5px solid #ddd; border-radius: 10px; color: #888; font-size: 0.85rem; font-weight: 600; padding: 0.45rem 0.85rem; }
     .btn-import:hover { border-color: #ff6b35; color: #ff6b35; }
@@ -177,7 +183,7 @@ const api = {
 };
 
 // ── State ────────────────────────────────────────────────────────────────────
-let S = { view: 'home', category: null, entry: null, modal: null };
+let S = { view: 'home', category: null, entry: null, modal: null, sort: 'rating' };
 
 function go(view, extra = {}) {
   S = { ...S, view, modal: null, ...extra };
@@ -258,6 +264,14 @@ function renderCategory(root, cat) {
     ));
 
     const entries = data.entrys || [];
+
+    if (entries.length > 0) {
+      root.appendChild(el('div', { class: 'sort-bar' },
+        el('button', { class: 'sort-btn' + (S.sort === 'rating' ? ' active' : ''), onclick: () => { S.sort = 'rating'; go('category'); } }, '⭐ Rating'),
+        el('button', { class: 'sort-btn' + (S.sort === 'date' ? ' active' : ''), onclick: () => { S.sort = 'date'; go('category'); } }, '📅 Date'),
+      ));
+    }
+
     if (entries.length === 0) {
       root.appendChild(el('div', { class: 'empty' },
         el('div', { class: 'empty-emoji' }, '🍴'),
@@ -266,6 +280,12 @@ function renderCategory(root, cat) {
         el('button', { class: 'btn btn-primary', onclick: () => openModal('add-entry') }, 'Add first entry'),
       ));
     } else {
+      if (S.sort === 'rating') {
+        entries.sort((a, b) => (avgRating(b.scorers) ?? -1) - (avgRating(a.scorers) ?? -1));
+      } else {
+        entries.sort((a, b) => b.date.localeCompare(a.date));
+      }
+
       entries.forEach(entry => {
         const topScorers = (entry.scorers || []).slice(0, 2);
         const avg = avgRating(entry.scorers);
