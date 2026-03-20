@@ -737,19 +737,47 @@ const BG_IMAGES = [
   'https://images.unsplash.com/photo-1565299624946-b28f40a5d96a?auto=format&fit=crop&w=1920&q=80',
   'https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?auto=format&fit=crop&w=1920&q=80',
   'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1628840042-46068a02c99c?auto=format&fit=crop&w=1920&q=80',
   // Burgers
   'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1920&q=80',
   'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1561758033-d89a9ad46330?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1607013251379-e6eecfffe234?auto=format&fit=crop&w=1920&q=80',
   // Wings / chicken
   'https://images.unsplash.com/photo-1527477396000-e27163b481c2?auto=format&fit=crop&w=1920&q=80',
   'https://images.unsplash.com/photo-1608039781374-a8471b0e0254?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1606755962773-d324e9a13086?auto=format&fit=crop&w=1920&q=80',
   // Tacos
   'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1552332386-f8dd00dc2f85?auto=format&fit=crop&w=1920&q=80',
+  // Sushi
+  'https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1617196034231-6a75c47e78f4?auto=format&fit=crop&w=1920&q=80',
+  // Ramen
+  'https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?auto=format&fit=crop&w=1920&q=80',
+  // Steak / BBQ
+  'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1558030006-db6e6cbf86c3?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1544025162-d76538b4a9e0?auto=format&fit=crop&w=1920&q=80',
+  // Nachos
+  'https://images.unsplash.com/photo-1513456852971-ceab96e2c52c?auto=format&fit=crop&w=1920&q=80',
   // Pasta
   'https://images.unsplash.com/photo-1546069901-522bc7c63f06?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=1920&q=80',
+  // Seafood
+  'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=1920&q=80',
+  // Korean BBQ
+  'https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=1920&q=80',
+  // Hot dogs
+  'https://images.unsplash.com/photo-1612392166886-ee8475b02af4?auto=format&fit=crop&w=1920&q=80',
   // Plated / general
   'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1920&q=80',
   'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1493770348161-369560ae357d?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1540189549336-e6e99eb4b0f5?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1555939594-58d67b1ef0ceb?auto=format&fit=crop&w=1920&q=80',
 ];
 
 let bgCurrent = 0;
@@ -768,7 +796,7 @@ function initBgSlider() {
     slides[bgCurrent].classList.remove('active');
     bgCurrent = (bgCurrent + 1) % slides.length;
     slides[bgCurrent].classList.add('active');
-  }, 90000);
+  }, 30000);
 }
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
