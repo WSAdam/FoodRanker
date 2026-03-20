@@ -7,7 +7,34 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍔</text></svg>">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f6f3; color: #1a1a1a; min-height: 100vh; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a0e06; color: #1a1a1a; min-height: 100vh; }
+
+    /* ── Background slideshow ── */
+    #bg-slider { position: fixed; inset: 0; z-index: -2; }
+    .bg-slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2.5s ease-in-out; }
+    .bg-slide.active { opacity: 1; }
+    #bg-overlay { position: fixed; inset: 0; z-index: -1; background: linear-gradient(160deg, rgba(15,8,2,0.65) 0%, rgba(15,8,2,0.52) 100%); }
+
+    /* ── Text on dark bg ── */
+    h1 { color: #fff; }
+    .back-nav { color: #fff; }
+    .detail-restaurant { color: #fff; }
+    .detail-date { color: rgba(255,255,255,0.62); }
+    .loading { text-align: center; padding: 3rem; color: rgba(255,255,255,0.5); font-size: 0.95rem; }
+    .empty h2 { color: #fff; }
+    .empty p { color: rgba(255,255,255,0.68); }
+    .rating-hero { font-size: 2.5rem; font-weight: 900; color: #ff6b35; }
+
+    /* ── Glassmorphism cards ── */
+    .cat-card, .entry-card { background: rgba(255,255,255,0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+    .detail-fields, .scorers-section { background: rgba(255,255,255,0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+
+    /* ── Sort & import buttons on dark bg ── */
+    .sort-btn { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.22); color: rgba(255,255,255,0.8); backdrop-filter: blur(8px); }
+    .sort-btn:hover { border-color: #ff6b35; color: #ff6b35; background: rgba(255,255,255,0.18); }
+    .sort-btn.active { background: #ff6b35; color: #fff; border-color: #ff6b35; }
+    .btn-import { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.22); color: rgba(255,255,255,0.8); backdrop-filter: blur(8px); }
+    .btn-import:hover { border-color: #ff6b35; color: #ff6b35; background: rgba(255,255,255,0.18); }
     #root { max-width: 600px; margin: 0 auto; padding: 0 1rem 6rem; }
 
     /* Header */
@@ -126,6 +153,8 @@
   </style>
 </head>
 <body>
+<div id="bg-slider"></div>
+<div id="bg-overlay"></div>
 <div id="root"></div>
 <div id="modal-root"></div>
 <script>
@@ -702,7 +731,48 @@ function triggerImport(cat) {
   input.click();
 }
 
+// ── Background Slideshow ──────────────────────────────────────────────────────
+const BG_IMAGES = [
+  // Pizza
+  'https://images.unsplash.com/photo-1565299624946-b28f40a5d96a?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1920&q=80',
+  // Burgers
+  'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1920&q=80',
+  // Wings / chicken
+  'https://images.unsplash.com/photo-1527477396000-e27163b481c2?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1608039781374-a8471b0e0254?auto=format&fit=crop&w=1920&q=80',
+  // Tacos
+  'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=1920&q=80',
+  // Pasta
+  'https://images.unsplash.com/photo-1546069901-522bc7c63f06?auto=format&fit=crop&w=1920&q=80',
+  // Plated / general
+  'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1920&q=80',
+];
+
+let bgCurrent = 0;
+function initBgSlider() {
+  const slider = document.getElementById('bg-slider');
+  // Shuffle so each session feels fresh
+  const images = [...BG_IMAGES].sort(() => Math.random() - 0.5);
+  images.forEach((url, i) => {
+    const slide = document.createElement('div');
+    slide.className = 'bg-slide' + (i === 0 ? ' active' : '');
+    slide.style.backgroundImage = `url(${url})`;
+    slider.appendChild(slide);
+  });
+  setInterval(() => {
+    const slides = slider.querySelectorAll('.bg-slide');
+    slides[bgCurrent].classList.remove('active');
+    bgCurrent = (bgCurrent + 1) % slides.length;
+    slides[bgCurrent].classList.add('active');
+  }, 90000);
+}
+
 // ── Boot ──────────────────────────────────────────────────────────────────────
+initBgSlider();
 render();
 </script>
 </body>
