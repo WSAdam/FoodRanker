@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Food Ranker</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍔</text></svg>">
   <style>
@@ -20,7 +20,9 @@
     .back-nav { color: #fff; }
     .detail-restaurant { color: #fff; }
     .detail-date { color: rgba(255,255,255,0.62); }
-    .loading { text-align: center; padding: 3rem; color: rgba(255,255,255,0.5); font-size: 0.95rem; }
+    .loading { text-align: center; padding: 4rem 2rem; color: rgba(255,255,255,0.5); font-size: 0.95rem; }
+    .loading-pizza { font-size: 3.5rem; display: block; animation: spin 1.2s linear infinite; margin-bottom: 0.75rem; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     .empty h2 { color: #fff; }
     .empty p { color: rgba(255,255,255,0.68); }
     .rating-hero { font-size: 2.5rem; font-weight: 900; color: #ff6b35; }
@@ -35,7 +37,7 @@
     .sort-btn.active { background: #ff6b35; color: #fff; border-color: #ff6b35; }
     .btn-import { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.22); color: rgba(255,255,255,0.8); backdrop-filter: blur(8px); }
     .btn-import:hover { border-color: #ff6b35; color: #ff6b35; background: rgba(255,255,255,0.18); }
-    #root { max-width: 600px; margin: 0 auto; padding: 0 1rem 6rem; }
+    #root { max-width: 600px; margin: 0 auto; padding: 0 1rem; padding-bottom: max(6rem, calc(3rem + env(safe-area-inset-bottom))); padding-left: max(1rem, env(safe-area-inset-left)); padding-right: max(1rem, env(safe-area-inset-right)); }
 
     /* Header */
     .page-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 0 1rem; }
@@ -99,21 +101,27 @@
     .scorer-pill { display: inline-flex; align-items: center; gap: 0.4rem; background: #fff3ee; border: 1.5px solid #ffd0b8; border-radius: 20px; padding: 0.3rem 0.85rem; font-size: 0.9rem; margin: 0.25rem; }
     .scorer-pill-rating { font-weight: 800; color: #ff6b35; }
 
-    /* Modal overlay */
-    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    /* Modal overlay — centered on desktop, bottom sheet on mobile */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.52); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; }
     .sheet { background: white; border-radius: 20px; padding: 1.5rem; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
     .sheet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
-    .sheet-close { background: #f0ede8; width: 32px; height: 32px; border-radius: 50%; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; color: #666; }
+    .sheet-close { background: #f0ede8; width: 36px; height: 36px; border-radius: 50%; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; color: #666; flex-shrink: 0; }
     .sheet-close:hover { background: #e5e0d8; }
+    @media (max-width: 600px) {
+      .overlay { align-items: flex-end; padding: 0; }
+      .sheet { border-radius: 22px 22px 0 0; max-width: 100%; max-height: 92vh; padding: 1.25rem 1rem calc(1.5rem + env(safe-area-inset-bottom)); }
+    }
 
     /* Form */
     .form-group { margin-bottom: 1rem; }
     .form-row { display: flex; gap: 0.75rem; }
     .form-row .form-group { flex: 1; }
+    @media (max-width: 420px) { .form-row { flex-direction: column; gap: 0; } }
     label { display: block; font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 0.3rem; }
     input[type=text], input[type=date], input[type=number], textarea {
-      width: 100%; border: 1.5px solid #e0dcd6; border-radius: 10px; padding: 0.65rem 0.8rem;
+      width: 100%; border: 1.5px solid #e0dcd6; border-radius: 10px; padding: 0.75rem 0.85rem;
       font-size: 1rem; font-family: inherit; background: #faf8f5; transition: border-color 0.15s;
+      -webkit-appearance: none; appearance: none;
     }
     input:focus, textarea:focus { outline: none; border-color: #ff6b35; background: white; }
     textarea { resize: vertical; min-height: 75px; }
@@ -128,7 +136,18 @@
 
     /* Form actions */
     .form-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
-    .form-actions button { flex: 1; padding: 0.75rem; }
+    .form-actions button { flex: 1; padding: 0.85rem; min-height: 48px; }
+
+    /* Mobile tweaks */
+    @media (max-width: 600px) {
+      h1 { font-size: 1.4rem; }
+      .btn-fab { width: 48px; height: 48px; font-size: 1.8rem; }
+      .scorer-tag-name { max-width: 5rem; overflow: hidden; text-overflow: ellipsis; }
+      .entry-card-right { min-width: 0; }
+      .sort-btn { padding: 0.4rem 0.7rem; font-size: 0.8rem; }
+      .detail-actions { gap: 0.5rem; }
+      .btn-edit, .btn-delete { padding: 0.75rem 0.75rem; font-size: 0.9rem; }
+    }
 
     /* Sort bar */
     .sort-bar { display: flex; gap: 0.4rem; margin-bottom: 1rem; }
@@ -148,8 +167,7 @@
     .btn-delete { background: #fff0f0; color: #cc2222; border: 1.5px solid #ffcccc; border-radius: 12px; font-size: 0.95rem; font-weight: 600; padding: 0.65rem 1.25rem; flex: 1; }
     .btn-delete:hover { background: #ffe0e0; }
 
-    /* Loading */
-    .loading { text-align: center; padding: 3rem; color: #aaa; font-size: 0.95rem; }
+    /* Loading (duplicate removed — defined above) */
   </style>
 </head>
 <body>
@@ -240,7 +258,7 @@ function render() {
 
 // ── Home ─────────────────────────────────────────────────────────────────────
 function renderHome(root) {
-  root.appendChild(el('div', { class: 'loading' }, 'Loading…'));
+  root.appendChild(el('div', { class: 'loading' }, el('span', { class: 'loading-pizza' }, '🍕'), 'Loading…'));
 
   api.categories().then(data => {
     const cats = data.categorys || [];
@@ -279,7 +297,7 @@ function renderCategory(root, cat) {
   root.appendChild(el('div', { class: 'back-nav' },
     el('button', { class: 'btn-ghost', onclick: () => go('home') }, '← Back'),
   ));
-  root.appendChild(el('div', { class: 'loading' }, 'Loading…'));
+  root.appendChild(el('div', { class: 'loading' }, el('span', { class: 'loading-pizza' }, '🍕'), 'Loading…'));
 
   api.entries(cat.categoryId).then(data => {
     while (root.children.length > 1) root.removeChild(root.lastChild);
