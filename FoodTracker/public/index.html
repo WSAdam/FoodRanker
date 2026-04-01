@@ -205,7 +205,7 @@ function fmtDate(s) {
 
 function avgRating(scorers) {
   if (!scorers || !scorers.length) return null;
-  return Math.round(scorers.reduce((sum, sc) => sum + sc.rating, 0) / scorers.length);
+  return parseFloat((scorers.reduce((sum, sc) => sum + sc.rating, 0) / scorers.length).toFixed(2));
 }
 
 // ── API ──────────────────────────────────────────────────────────────────────
@@ -353,7 +353,7 @@ function renderCategory(root, cat) {
                       )
                     ),
                   )
-                : avg !== null ? el('div', { class: 'rating-pill' }, avg + '/100') : null,
+                : avg !== null ? el('div', { class: 'rating-pill' }, avg + '/10') : null,
             ),
           ),
         ));
@@ -421,7 +421,7 @@ function renderEntryDetail(root, entry) {
       ...entry.scorers.map(sc =>
         el('span', { class: 'scorer-pill' },
           sc.person + ' ',
-          el('span', { class: 'scorer-pill-rating' }, sc.rating + '/100'),
+          el('span', { class: 'scorer-pill-rating' }, sc.rating + '/10'),
         )
       ),
     ));
@@ -481,7 +481,7 @@ function renderAddEntryModal(root) {
       const scorers = [];
       scorersList.querySelectorAll('.scorer-entry').forEach(row => {
         const person = row.querySelector('.person').value.trim();
-        const rating = parseInt(row.querySelector('.score').value, 10);
+        const rating = parseFloat(row.querySelector('.score').value);
         if (person && !isNaN(rating)) scorers.push({ person, rating });
       });
 
@@ -569,7 +569,7 @@ function renderEditEntryModal(root) {
     ? entry.scorers.map((sc, i) => {
         const row = el('div', { class: 'scorer-entry scorer-row' },
           Object.assign(el('input', { type: 'text', class: 'person', placeholder: 'Person name' }), { value: sc.person }),
-          Object.assign(el('input', { type: 'number', class: 'score', placeholder: '0–100', min: '0', max: '100' }), { value: sc.rating }),
+          Object.assign(el('input', { type: 'number', class: 'score', placeholder: '0–10', min: '0', max: '10', step: '0.01' }), { value: sc.rating }),
         );
         if (i > 0) {
           row.appendChild(el('button', { type: 'button', class: 'remove', onclick: () => row.remove() }, '×'));
@@ -586,7 +586,7 @@ function renderEditEntryModal(root) {
       const scorers = [];
       scorersList.querySelectorAll('.scorer-entry').forEach(row => {
         const person = row.querySelector('.person').value.trim();
-        const rating = parseInt(row.querySelector('.score').value, 10);
+        const rating = parseFloat(row.querySelector('.score').value);
         if (person && !isNaN(rating)) scorers.push({ person, rating });
       });
 
@@ -669,7 +669,7 @@ function renderEditEntryModal(root) {
 function makeScorerRow(idx) {
   const row = el('div', { class: 'scorer-entry scorer-row' },
     el('input', { type: 'text', class: 'person', placeholder: 'Person name' }),
-    el('input', { type: 'number', class: 'score', placeholder: '0–100', min: '0', max: '100' }),
+    el('input', { type: 'number', class: 'score', placeholder: '0–10', min: '0', max: '10', step: '0.01' }),
   );
   if (idx > 0) {
     row.appendChild(el('button', { type: 'button', class: 'remove', onclick: () => row.remove() }, '×'));
@@ -725,7 +725,7 @@ function triggerImport(cat) {
             const colon = s.lastIndexOf(':');
             if (colon < 1) return [];
             const person = s.slice(0, colon).trim();
-            const rating = parseInt(s.slice(colon + 1), 10);
+            const rating = parseFloat(s.slice(colon + 1));
             return person && !isNaN(rating) ? [{ person, rating }] : [];
           })
         : [];
