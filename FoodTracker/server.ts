@@ -9,6 +9,9 @@ import { CreateCategoryDto } from "./dto/create-category-dto.ts";
 import { CreateEntryDto } from "./dto/create-entry-dto.ts";
 import { CategoryIdDto } from "./dto/category-id-dto.ts";
 import { EntryIdDto } from "./dto/entry-id-dto.ts";
+import { getKv } from "./db.ts";
+
+type ScorerRow = { person: string; rating: number };
 
 function json(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
@@ -63,6 +66,33 @@ Deno.serve(async (req: Request) => {
       if (!categoryId) return err("categoryId query param required");
       const result = await listEntry(new CategoryIdDto({ categoryId }));
       return json(result);
+    }
+
+    // POST /admin/migrate-ratings — one-shot: convert any rating ≤ 10 into rating × 10
+    if (method === "POST" && pathname === "/admin/migrate-ratings") {
+      const kv = await getKv();
+      let entriesScanned = 0;
+      let entriesUpdated = 0;
+      let scorersConverted = 0;
+      const iter = kv.list<ScorerRow[]>({ prefix: ["entry_scorers"] });
+      for await (const { key, value } of iter) {
+        entriesScanned++;
+        if (!Array.isArray(value)) continue;
+        let changed = false;
+        const updated = value.map((s) => {
+          if (typeof s.rating === "number" && s.rating <= 10) {
+            changed = true;
+            scorersConverted++;
+            return { person: s.person, rating: Math.round(s.rating * 10) };
+          }
+          return s;
+        });
+        if (changed) {
+          await kv.set(key, updated);
+          entriesUpdated++;
+        }
+      }
+      return json({ entriesScanned, entriesUpdated, scorersConverted });
     }
 
     // /entries/:entryId
