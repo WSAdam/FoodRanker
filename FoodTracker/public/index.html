@@ -795,23 +795,33 @@ const BG_IMAGES = [
   'https://images.unsplash.com/photo-1493770348161-369560ae357d?auto=format&fit=crop&w=1920&q=80',
   'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1920&q=80',
   'https://images.unsplash.com/photo-1540189549336-e6e99eb4b0f5?auto=format&fit=crop&w=1920&q=80',
-  'https://images.unsplash.com/photo-1555939594-58d67b1ef0ceb?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1555939594-58d67b1ef0ce?auto=format&fit=crop&w=1920&q=80',
 ];
 
 let bgCurrent = 0;
 function initBgSlider() {
   const slider = document.getElementById('bg-slider');
-  // Shuffle so each session feels fresh
-  const images = [...BG_IMAGES].sort(() => Math.random() - 0.5);
-  images.forEach((url, i) => {
-    const slide = document.createElement('div');
-    slide.className = 'bg-slide' + (i === 0 ? ' active' : '');
-    slide.style.backgroundImage = `url(${url})`;
-    slider.appendChild(slide);
+  const shuffled = [...BG_IMAGES].sort(() => Math.random() - 0.5);
+
+  // Preload each image; skip any that 404 or fail
+  shuffled.forEach((url) => {
+    const img = new Image();
+    img.onload = () => {
+      const slide = document.createElement('div');
+      slide.className = 'bg-slide';
+      slide.style.backgroundImage = `url(${url})`;
+      slider.appendChild(slide);
+      // Activate the very first successfully-loaded slide
+      if (!slider.querySelector('.bg-slide.active')) slide.classList.add('active');
+    };
+    img.onerror = () => console.warn('bg image failed:', url);
+    img.src = url;
   });
+
   setInterval(() => {
     const slides = slider.querySelectorAll('.bg-slide');
-    slides[bgCurrent].classList.remove('active');
+    if (slides.length < 2) return; // nothing to rotate to yet
+    slides[bgCurrent % slides.length].classList.remove('active');
     bgCurrent = (bgCurrent + 1) % slides.length;
     slides[bgCurrent].classList.add('active');
   }, 30000);
