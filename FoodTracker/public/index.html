@@ -129,7 +129,9 @@
     /* Scorer rows in form */
     .scorer-row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
     .scorer-row .person { flex: 1; }
-    .scorer-row .score { width: 80px; flex-shrink: 0; }
+    .scorer-row .score-wrap { position: relative; flex-shrink: 0; }
+    .scorer-row .score { width: 95px; padding-right: 2.2rem; }
+    .scorer-row .score-suffix { position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); color: #999; font-size: 0.85rem; font-weight: 600; pointer-events: none; }
     .scorer-row .remove { background: none; color: #ff4444; font-size: 1.2rem; padding: 0 0.2rem; line-height: 1; }
     .add-scorer { background: none; border: 1.5px dashed #ccc; border-radius: 10px; color: #999; font-size: 0.9rem; padding: 0.5rem; width: 100%; font-family: inherit; cursor: pointer; margin-top: 0.25rem; }
     .add-scorer:hover { border-color: #ff6b35; color: #ff6b35; }
@@ -569,7 +571,10 @@ function renderEditEntryModal(root) {
     ? entry.scorers.map((sc, i) => {
         const row = el('div', { class: 'scorer-entry scorer-row' },
           Object.assign(el('input', { type: 'text', class: 'person', placeholder: 'Person name' }), { value: sc.person }),
-          Object.assign(el('input', { type: 'number', class: 'score', placeholder: '0–100', min: '0', max: '100', step: '1' }), { value: sc.rating }),
+          el('div', { class: 'score-wrap' },
+            Object.assign(el('input', { type: 'number', class: 'score', placeholder: '0–100', min: '0', max: '100', step: '1' }), { value: sc.rating }),
+            el('span', { class: 'score-suffix' }, '/100'),
+          ),
         );
         if (i > 0) {
           row.appendChild(el('button', { type: 'button', class: 'remove', onclick: () => row.remove() }, '×'));
@@ -669,7 +674,10 @@ function renderEditEntryModal(root) {
 function makeScorerRow(idx) {
   const row = el('div', { class: 'scorer-entry scorer-row' },
     el('input', { type: 'text', class: 'person', placeholder: 'Person name' }),
-    el('input', { type: 'number', class: 'score', placeholder: '0–100', min: '0', max: '100', step: '1' }),
+    el('div', { class: 'score-wrap' },
+      el('input', { type: 'number', class: 'score', placeholder: '0–100', min: '0', max: '100', step: '1' }),
+      el('span', { class: 'score-suffix' }, '/100'),
+    ),
   );
   if (idx > 0) {
     row.appendChild(el('button', { type: 'button', class: 'remove', onclick: () => row.remove() }, '×'));
